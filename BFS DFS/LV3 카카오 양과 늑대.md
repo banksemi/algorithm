@@ -57,3 +57,37 @@ def solution(info, edges):
     return result
 ```
 
+두번째 풀이
+- 방문 가능한 노드를 dfs에 함께 넘겨준다. 
+
+```
+def solution(info, edges):
+    nodes = {}
+    
+    for i in range(len(info)):
+        nodes[i] = []
+    
+    for n1, n2 in edges:
+        nodes[n1].append(n2)
+    
+    result = 0
+    def dfs(node, n1, n2, next_nodes):
+        nonlocal result
+        if node != -1:
+            if info[node] == 0:
+                n1 += 1
+            else:
+                n2 += 1
+                if n1 <= n2:
+                    return
+            result = max(result, n1)
+            # 방문 가능한 노드 추가
+            next_nodes.extend(nodes[node])
+
+        for next_node in next_nodes:
+            _temp = [i for i in next_nodes if i != next_node]
+            dfs(next_node, n1, n2, _temp)
+            
+    dfs(-1, 0, 0, [0])
+    return result
+```
