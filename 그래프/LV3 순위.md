@@ -18,3 +18,44 @@ https://school.programmers.co.kr/learn/courses/30/lessons/49191
 
 따라서 각 노드별로 '이기는게 확정된 사람들', '지는게 확정인 사람들' 을 각각 하고 합집합 연산을 통해 모든 n을 커버하는지 확인하는 방식으로 접근했다.
 
+```
+from collections import deque
+def make_win_graph(n, results):
+    nodes = {}
+    connected_count = [0] * n
+    for i in range(0, n):
+        nodes[i] = []
+        
+    for a, b in results:
+        nodes[a-1].append(b-1)
+        connected_count[b-1] += 1
+    
+    winners = []
+    for i in range(n):
+        winners.append(set([i]))
+    
+    visited = [False] * n
+    queue = deque([])
+    for i in range(n):
+        if connected_count[i] == 0:
+            queue.append(i)
+    while queue:
+        item = queue.popleft()
+        for b in nodes[item]:
+            # 내 위에 승자를 모두 넘겨준다.
+            winners[b] |= winners[item] 
+            connected_count[b] -= 1
+            if connected_count[b] == 0:
+                queue.append(b)
+    
+    return winners
+
+def solution(n, results):
+    winners = make_win_graph(n, results)
+    losers = make_win_graph(n, [(b, a) for a, b in results])
+    answer = 0
+    for win_set, lose_set in zip(winners, losers):
+        if len(win_set | lose_set) == n:
+            answer += 1
+    return answer
+```
