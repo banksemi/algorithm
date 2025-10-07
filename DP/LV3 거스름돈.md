@@ -1,4 +1,6 @@
 [틀림] https://school.programmers.co.kr/learn/courses/30/lessons/12907
+2025-10-07 문제 다시 풀기 진행
+
 정답 보고 해결
 거스름돈의 경우의 수를 구하는 DP 문제 
 - 1차원 DP로도 풀 수 있지만 2차원으로 풀었다.
