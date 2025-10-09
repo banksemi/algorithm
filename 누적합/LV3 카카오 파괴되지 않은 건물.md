@@ -1,5 +1,67 @@
 [틀림] https://school.programmers.co.kr/learn/courses/30/lessons/92344
+2025-10-09 다시 풀기
 
+2차원 누적합을 사용한 개념
+- make_prefix_sum()처럼 y 합계, x 합계를 별도로 계산해야한다.
+
+```
+def solution(board, skill):
+    width = len(board[0])
+    height = len(board)
+        
+    board_offset = [[0] * width for _ in range(height)]
+    def debug(table):
+        for arr in table:
+            print(arr)
+        print("------------")
+    
+    def _add_offset(y, x, add_value):
+        if y >= height or x >= width:
+            return False
+        if y < 0 or x < 0:
+            return False
+        board_offset[y][x] += add_value
+        return True
+    def apply_skill(y1, x1, y2, x2, offset):
+        _add_offset(y1, x1, offset)
+        _add_offset(y2, x1, -offset)
+        _add_offset(y1, x2, -offset)
+        _add_offset(y2, x2, offset)
+        
+    def make_prefix_sum():
+        for y in range(height):
+            for x in range(width):
+                if x != 0:
+                    board_offset[y][x] = board_offset[y][x-1] + board_offset[y][x] 
+        
+        for y in range(height):
+            for x in range(width):
+                if y != 0:
+                    board_offset[y][x] = board_offset[y-1][x] + board_offset[y][x]
+                    
+    for skill_type, y1, x1, _y2, _x2, degree in skill:
+        value = degree
+        y2 = _y2 + 1
+        x2 = _x2 + 1
+        if skill_type == 1:
+            value *= -1
+        apply_skill(y1, x1, y2, x2, value)
+        
+    make_prefix_sum()
+    
+    answer = 0
+    for y in range(height):
+        for x in range(width):
+            if board[y][x] + board_offset[y][x] > 0:
+                answer += 1
+    return answer
+```
+---
+아래는 틀린 풀이들
+
+1차 풀이 (틀림)
+- 기본적으로는 skill이 올때마다 보드를 갱신한다.
+- 효율성을 위해 변경해야할 타일 수가 > 전체/2를 초과하면, 반대 부분을 칠하도록 했으나, 여전히 worst case를 커버할 수 없다.
 ```
 """
 보드 길이: 최대 1000 * 1000
@@ -57,7 +119,9 @@ def solution(board, skill):
 ```
 
 
-2차 
+2차 풀이 (틀림)
+- 힌트를 보고 누적합을 적용했다. 다만 2차원 누적 합이 와닿지 않아 1차원 누적합으로 접근했다.
+- 세로로 긴 스킬들이 많을 때 여전히 비효율적 로직을 수행하게 되는 한계가 있다.
 
 ```
 """
