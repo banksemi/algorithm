@@ -72,3 +72,60 @@ def solution(words, queries):
         )
     return answer
 ```
+
+
+
+풀이 2 - 트라이
+
+
+트라이 방법으로도 풀 수 있다 다만 위의 이진 탐색보다는 속도가 느리게 나왔다.
+
+```
+import sys
+sys.setrecursionlimit(2**30)
+class Node:
+    def __init__(self):
+        self.count = 0
+        self.childs = {}
+    
+    def get_child(self, char):
+        if char not in self.childs:
+            self.childs[char] = Node()
+        return self.childs[char]
+    
+def reverse_word(word):
+    return ''.join(reversed(word))
+
+def solution(words, queries):
+    root = {i: Node() for i in range(100_001)}
+    reversed_root = {i: Node() for i in range(100_001)}
+    def dfs(node, word, level):
+        node.count += 1
+        if level == len(word):
+            return
+        
+        child = node.get_child(word[level])
+        dfs(child, word, level + 1)
+        
+    for word in words:
+        length = len(word)
+        dfs(root[length], word, 0)
+        dfs(reversed_root[length], reverse_word(word), 0)
+    
+    def find(node, query, level):
+        if query[level] == '?':
+            return node.count
+        if level == len(query):
+            return node.count
+        
+        child = node.get_child(query[level])
+        return find(child, query, level + 1)
+    answer = []
+    for query in queries:
+        length = len(query)
+        if query.startswith('?'):
+            answer.append(find(reversed_root[length], reverse_word(query), 0))
+        else:
+            answer.append(find(root[length], query, 0))
+    return answer
+```
