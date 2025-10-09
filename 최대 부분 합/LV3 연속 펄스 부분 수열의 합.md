@@ -26,3 +26,26 @@ def solution(sequence):
     
     return max(run(1), run(-1))
 ```
+
+----
+아래는 누적 합으로 푼 케이스
+최대 누적 합 - 최소 누적 합 = 최대 부분 합
+- NOTE: 단 최소 누적 합은 0일 수 있음 (0번부터 시작하는 부분 수열을 고려)
+```
+def solution(sequence):
+    def run(multiple):
+        current_sum = 0
+        min_sum = 0 # 아무것도 선택 안하는 경우
+        max_sum = -1e9
+        for value in sequence:
+            current_sum += value * multiple
+            multiple *= -1
+            
+            max_sum = max(max_sum, current_sum)
+            min_sum = min(min_sum, current_sum)
+            # 누적합 기준으로 최대 최소를 서로 빼주면 가장 큰 부분 수열이 나온다.
+            # min, max를 구하기 전 테이블에 기록하면 -> DP와 유사한 형태가 나온다.
+        return max_sum - min_sum
+    
+    return max(run(1), run(-1))
+```
