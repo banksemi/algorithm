@@ -1,0 +1,56 @@
+그룹 집계를 사용해야하기 때문에 서브쿼리가 발생하는데 WITH 구문을 통해 가독성을 향상시키고 휴먼 에러를 줄일 수 있다.
+
+**WITH를 통한 가독성 향상**
+```
+WITH MEMBER_REVIEW_COUNT AS (
+    SELECT 
+        MEMBER_ID, 
+        count(*) AS REVIEW_COUNT 
+    FROM REST_REVIEW 
+    GROUP BY MEMBER_ID
+)
+
+SELECT 
+    MEMBER_NAME, 
+    REVIEW_TEXT, 
+    DATE_FORMAT(REVIEW_DATE, '%Y-%m-%d') as REVIEW_DATE 
+FROM 
+    REST_REVIEW AS C
+JOIN 
+    MEMBER_PROFILE USING (MEMBER_ID)
+JOIN
+    (
+        SELECT MEMBER_ID
+        FROM MEMBER_REVIEW_COUNT 
+        WHERE
+            REVIEW_COUNT=(SELECT MAX(REVIEW_COUNT) FROM MEMBER_REVIEW_COUNT)
+    ) AS D 
+USING (MEMBER_ID)
+ORDER BY REVIEW_DATE, REVIEW_TEXT
+```
+
+초기 풀이 
+```
+SELECT 
+    MEMBER_NAME, 
+    REVIEW_TEXT, 
+    DATE_FORMAT(REVIEW_DATE, '%Y-%m-%d') as REVIEW_DATE 
+FROM 
+    REST_REVIEW AS C
+JOIN 
+    MEMBER_PROFILE USING (MEMBER_ID)
+JOIN
+    (
+        SELECT MEMBER_ID, count(*) AS REVIEW_COUNT 
+        FROM REST_REVIEW 
+        GROUP BY MEMBER_ID
+        HAVING 
+            REVIEW_COUNT=(
+                SELECT MAX(REVIEW_COUNT)
+                FROM (SELECT count(*) AS REVIEW_COUNT FROM REST_REVIEW GROUP BY MEMBER_ID)  
+                AS B
+            )
+    ) AS D 
+USING (MEMBER_ID)
+ORDER BY REVIEW_DATE, REVIEW_TEXT
+```
