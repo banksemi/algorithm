@@ -1,0 +1,34 @@
+[나중에 다시 풀기] WITH RECURSIVE를 재귀 쿼리를 구현할 수 있다.
+- UNION ALL을 사용하여 확장이 가능하며, 재귀 테이블을 호출하면 '이전에 추가된 항목'들을 사용할 수 있다.
+
+```
+WITH RECURSIVE CA AS (
+    SELECT ID, PARENT_ID, 1 AS GENERATION
+    FROM
+        ECOLI_DATA
+    WHERE 
+        PARENT_ID IS NULL
+    UNION ALL
+    SELECT 
+        ECOLI_DATA.ID, 
+        ECOLI_DATA.PARENT_ID, 
+        GENERATION+1 AS GENERATION
+    FROM 
+        ECOLI_DATA 
+    JOIN CA ON ECOLI_DATA.PARENT_ID=CA.ID
+)
+
+SELECT 
+    count(*) as COUNT, GENERATION 
+FROM 
+    CA 
+LEFT JOIN 
+    ECOLI_DATA
+    ON CA.ID=ECOLI_DATA.PARENT_ID
+WHERE
+    ECOLI_DATA.ID IS NULL
+GROUP BY
+    GENERATION
+ORDER BY
+    GENERATION
+```
