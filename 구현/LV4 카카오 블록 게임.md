@@ -114,3 +114,76 @@ def solution(board):
     print(board)
     return answer
 ```
+
+다시 풀기 (2025.12.05)
+```
+dirs = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+def solution(board):
+    width = len(board[0])
+    height = len(board)
+    def get_tiles(y, x):
+        for iy, ix in dirs:
+            new_y = y + iy
+            new_x = x + ix
+            if new_x < 0 or new_y < 0:
+                continue
+            if new_x >= width or new_y >= height:
+                continue
+            yield new_y, new_x
+        
+    def can_fill_one_by_one_block(y, x):
+        for new_y in range(y+1):
+            if board[new_y][x] != 0:
+                return False
+        return True
+    
+    def check_remove_block(y, x):
+        block_number = board[y][x]
+        visited = set()
+        def dfs(y, x):
+            if (y,x) in visited:
+                return
+            visited.add((y,x))
+            for new_y, new_x in get_tiles(y,x):
+                if board[new_y][new_x] == block_number:
+                    dfs(new_y, new_x)
+        dfs(y, x)
+        min_y = min([i[0] for i in visited])
+        min_x = min([i[1] for i in visited])
+        max_y = max([i[0] for i in visited])
+        max_x = max([i[1] for i in visited])
+        for new_y in range(min_y, max_y + 1):
+            for new_x in range(min_x, max_x + 1):
+                if board[new_y][new_x] == 0 and not can_fill_one_by_one_block(new_y, new_x):
+                    return False
+                if board[new_y][new_x] > 0 and board[new_y][new_x] != block_number:
+                    return False
+        return True
+        
+        
+    def remove_related_block(y, x):
+        block_number = board[y][x]
+        def dfs(y, x):
+            board[y][x] = 0
+            for new_y, new_x in get_tiles(y,x):
+                if board[new_y][new_x] == block_number:
+                    dfs(new_y, new_x)
+        dfs(y, x)
+    
+    loop = True
+    answer = 0
+    while loop:
+        loop = False
+        for y in range(height):
+            for x in range(width):
+                if board[y][x] == 0:
+                    continue
+                if check_remove_block(y,x):
+                    remove_related_block(y,x)
+                    answer += 1
+                    loop = True
+                    break
+            if loop:
+                break
+    return answer
+```
